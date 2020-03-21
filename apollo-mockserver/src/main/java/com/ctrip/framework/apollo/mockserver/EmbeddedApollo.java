@@ -5,7 +5,6 @@ import com.ctrip.framework.apollo.core.dto.ApolloConfig;
 import com.ctrip.framework.apollo.core.dto.ApolloConfigNotification;
 import com.ctrip.framework.apollo.core.utils.ResourceUtils;
 import com.ctrip.framework.apollo.internals.ConfigServiceLocator;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
@@ -65,7 +64,8 @@ public class EmbeddedApollo extends ExternalResource {
         if (request.getPath().startsWith("/notifications/v2")) {
           String notifications = request.getRequestUrl().queryParameter("notifications");
           return new MockResponse().setResponseCode(200).setBody(mockLongPollBody(notifications));
-        } else if (request.getPath().startsWith("/configs")) {
+        }
+        if (request.getPath().startsWith("/configs")) {
           List<String> pathSegments = request.getRequestUrl().pathSegments();
           // appId and cluster might be used in the future
           String appId = pathSegments.get(1);

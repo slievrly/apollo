@@ -2,9 +2,10 @@ package com.ctrip.framework.apollo.portal.controller;
 
 import com.ctrip.framework.apollo.common.dto.ItemChangeSets;
 import com.ctrip.framework.apollo.common.dto.ItemDTO;
+import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
-import com.ctrip.framework.apollo.core.enums.Env;
+import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
 import com.ctrip.framework.apollo.portal.component.PermissionValidator;
 import com.ctrip.framework.apollo.portal.entity.model.NamespaceSyncModel;
@@ -12,6 +13,7 @@ import com.ctrip.framework.apollo.portal.entity.model.NamespaceTextModel;
 import com.ctrip.framework.apollo.portal.entity.vo.ItemDiffs;
 import com.ctrip.framework.apollo.portal.entity.vo.NamespaceIdentifier;
 import com.ctrip.framework.apollo.portal.service.ItemService;
+import com.ctrip.framework.apollo.portal.service.NamespaceService;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.core.io.ByteArrayResource;
@@ -38,13 +40,16 @@ import static com.ctrip.framework.apollo.common.utils.RequestPrecondition.checkM
 public class ItemController {
 
   private final ItemService configService;
+  private final NamespaceService namespaceService;
   private final UserInfoHolder userInfoHolder;
   private final PermissionValidator permissionValidator;
 
-  public ItemController(final ItemService configService, final UserInfoHolder userInfoHolder, final PermissionValidator permissionValidator) {
+  public ItemController(final ItemService configService, final UserInfoHolder userInfoHolder,
+                        final PermissionValidator permissionValidator, final NamespaceService namespaceService) {
     this.configService = configService;
     this.userInfoHolder = userInfoHolder;
     this.permissionValidator = permissionValidator;
+    this.namespaceService = namespaceService;
   }
 
   @PreAuthorize(value = "@permissionValidator.hasModifyNamespacePermission(#appId, #namespaceName, #env)")
@@ -99,9 +104,14 @@ public class ItemController {
   public void deleteItem(@PathVariable String appId, @PathVariable String env,
                          @PathVariable String clusterName, @PathVariable String namespaceName,
                          @PathVariable long itemId) {
-    if (itemId <= 0) {
-      throw new BadRequestException("item id invalid");
+    ItemDTO item = configService.loadItemById(Env.fromString(env), itemId);
+    NamespaceDTO namespace = namespaceService.loadNamespaceBaseInfo(appId, Env.fromString(env), clusterName, namespaceName);
+
+    // In case someone constructs an attack scenario
+    if (item.getNamespaceId() != namespace.getId()) {
+      throw new BadRequestException("Invalid request, item and namespace do not match!");
     }
+
     configService.deleteItem(Env.valueOf(env), itemId, userInfoHolder.getUser().getUserId());
   }
 
@@ -154,7 +164,7 @@ public class ItemController {
       if (permissionValidator
           .shouldHideConfigToCurrentUser(namespace.getAppId(), namespace.getEnv().name(), namespace.getNamespaceName())) {
         diff.setDiffs(new ItemChangeSets());
-        diff.setExtInfo("您不是该项目的管理员，也没有该Namespace在 " + namespace.getEnv() +  " 环境的编辑或发布权限");
+        diff.setExtInfo("You are not this project's administrator, nor you have edit or release permission for the namespace in environment: " + namespace.getEnv());
       }
     }
 
@@ -184,8 +194,7 @@ public class ItemController {
       configService.syncItems(model.getSyncToNamespaces(), model.getSyncItems());
       return ResponseEntity.status(HttpStatus.OK).build();
     }
-    else
-      throw new AccessDeniedException(String.format("您没有修改环境%s的权限", envNoPermission));
+    throw new AccessDeniedException(String.format("You don't have the permission to modify environment: %s", envNoPermission));
   }
 
   @PreAuthorize(value = "@permissionValidator.hasModifyNamespacePermission(#appId, #namespaceName, #env)")

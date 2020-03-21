@@ -8,7 +8,7 @@ import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.utils.InputValidator;
 import com.ctrip.framework.apollo.common.utils.RequestPrecondition;
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
-import com.ctrip.framework.apollo.core.enums.Env;
+import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.openapi.dto.OpenAppNamespaceDTO;
 import com.ctrip.framework.apollo.openapi.dto.OpenNamespaceDTO;
 import com.ctrip.framework.apollo.openapi.dto.OpenNamespaceLockDTO;
@@ -68,7 +68,7 @@ public class NamespaceController {
                                                appNamespaceDTO.getFormat(), appNamespaceDTO.getDataChangeCreatedBy());
 
     if (!InputValidator.isValidAppNamespace(appNamespaceDTO.getName())) {
-      throw new BadRequestException(String.format("Namespace格式错误: %s",
+      throw new BadRequestException(String.format("Invalid Namespace format: %s",
                                                   InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE + " & "
                                                   + InputValidator.INVALID_NAMESPACE_NAMESPACE_MESSAGE));
     }

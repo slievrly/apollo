@@ -1,18 +1,16 @@
 package com.ctrip.framework.apollo.common.controller;
 
+import java.util.List;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.server.MimeMappings;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
-import org.springframework.http.MediaType;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import java.util.List;
 
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer, WebServerFactoryCustomizer<TomcatServletWebServerFactory> {
@@ -29,7 +27,6 @@ public class WebMvcConfig implements WebMvcConfigurer, WebServerFactoryCustomize
   @Override
   public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
     configurer.favorPathExtension(false);
-    configurer.ignoreAcceptHeader(true).defaultContentType(MediaType.APPLICATION_JSON_UTF8);
   }
 
   @Override
@@ -44,10 +41,11 @@ public class WebMvcConfig implements WebMvcConfigurer, WebServerFactoryCustomize
     // 10 days
     addCacheControl(registry, "img", 864000);
     addCacheControl(registry, "vendor", 864000);
+    addCacheControl(registry, "scripts", 864000);
+    addCacheControl(registry, "styles", 864000);
     // 1 day
-    addCacheControl(registry, "scripts", 86400);
-    addCacheControl(registry, "styles", 86400);
     addCacheControl(registry, "views", 86400);
+    addCacheControl(registry, "i18n", 86400);
   }
 
   private void addCacheControl(ResourceHandlerRegistry registry, String folder, int cachePeriod) {

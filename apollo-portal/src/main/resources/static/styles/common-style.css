@@ -297,7 +297,7 @@ table th {
 
 .project-info th {
     text-align: right;
-    padding: 4px 6px;
+    padding: 4px 2px;
     width: 5em;
 }
 
@@ -505,6 +505,10 @@ table th {
     background: url(../img/manage.png) no-repeat;
 }
 
+.list-group-item .icon-accesskey-manage {
+    background: url(../img/secret.png) no-repeat;
+}
+
 .list-group-item .icon-plus-orange {
     background: url(../img/add.png) no-repeat;
 }
@@ -654,7 +658,7 @@ table th {
 .release-history .operation-caption {
     position: absolute;
     top: 45px;
-    width: 75px;
+    width: 100px;
     height: 18px;
     color: #fff;
     font-size: 12px;
@@ -803,6 +807,7 @@ table th {
 
 .project-setting .panel-body .context {
     padding-left: 30px;
+    padding-right: 30px;
 }
 
 .app-search-list .select2-container, .app-search-list .select2-container .select2-selection {

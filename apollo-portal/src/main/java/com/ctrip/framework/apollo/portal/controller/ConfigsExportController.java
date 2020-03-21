@@ -5,7 +5,7 @@ import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.exception.ServiceException;
 import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
-import com.ctrip.framework.apollo.core.enums.Env;
+import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.entity.bo.NamespaceBO;
 import com.ctrip.framework.apollo.portal.entity.model.NamespaceTextModel;
 import com.ctrip.framework.apollo.portal.service.ItemService;
@@ -57,7 +57,7 @@ public class ConfigsExportController {
         .loadNamespaceBaseInfo(appId, Env.fromString(env), clusterName, namespaceName);
 
     if (Objects.isNull(namespaceDTO)) {
-      throw new BadRequestException(String.format("Namespace: {} not exist.", namespaceName));
+      throw new BadRequestException(String.format("Namespace: %s not exist.", namespaceName));
     }
 
     NamespaceTextModel model = new NamespaceTextModel();

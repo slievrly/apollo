@@ -71,7 +71,7 @@ spec:
 
 ---
 kind: Deployment
-apiVersion: apps/v1beta2
+apiVersion: apps/v1
 metadata:
   namespace: sre
   name: deployment-apollo-portal-server
@@ -93,8 +93,18 @@ spec:
       labels:
         app: pod-apollo-portal-server
     spec:
-      nodeSelector:
-        node: "apollo"
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - pod-apollo-portal-server
+              topologyKey: kubernetes.io/hostname
       
       volumes:
         - name: volume-configmap-apollo-portal-server
